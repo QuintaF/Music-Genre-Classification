@@ -56,6 +56,9 @@ def gaussian_naive_bayes(train_data, train_labels, test_data):
     lik8 = multivariate_normal.pdf(test_data, mean_pop, cov_pop) * 1/10
     lik9 = multivariate_normal.pdf(test_data, mean_reggae, cov_reggae) * 1/10
     lik10 = multivariate_normal.pdf(test_data, mean_rock, cov_rock) * 1/10
+    
+    # may encounter dvision by 0 warning, since it is not a problem the warning is silenced
+    np.seterr(divide = 'ignore') 
     loglik = np.log(np.vstack((lik1, lik2, lik3, lik4, lik5, lik6, lik7, lik8, lik9, lik10)))
     
     # predictions
