@@ -1,24 +1,23 @@
 import numpy as np
+from sklearn import svm
 
+def support_vector_machines(train_data, train_labels, test_data):    
+    '''
+    computes knn for each test point 
 
-def support_vector_machines(features):
-    data = np.load(f"../dataset/My_Data/pca_{features}.npy")
-    labels = np.load(f"../dataset/My_Data/labels.npy")
+    :returns: predictions for test_data
+    '''
+
+    svm_model = svm.SVC(kernel="rbf")
+    svm_model.fit(train_data, train_labels)
+
+    predictions = svm_model.predict(test_data)
     
+    # transform string to corresponding label number
+    genres = {"blues":0, "classical":1, "country":2, 
+                "disco":3, "hiphop":4, "jazz":5, "metal":6, 
+                "pop":7, "reggae":8, "rock":9}
+    
+    predictions = [genres[genre] for genre in predictions]
 
-    training_data = []
-    train_labels = []
-    for i in range(170, 570, 100):
-        training_data.extend(data[i-170:i-100])
-        train_labels.extend(labels[i-170:i-100])
-
-    training_data.extend(data[i-170:i-1])
-    train_labels.extend(labels[i-170:i-1])
-
-    for i in range(669, 1069, 100):
-        training_data.extend(data[i-70:i])
-        train_labels.extend(labels[i-70:i])
-
-    # test data
-    test_data = np.vstack((data[70:100], data[170:200], data[270:300], data[370:400], data[470:500], data[569:599], data[669:699], data[769:799], data[869:899], data[969:999]))
-    gold_labels = np.repeat(["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"],30)
+    return predictions

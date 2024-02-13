@@ -7,7 +7,9 @@ MAX = 0.9
 
 def limited_ratio_type(arg):
     '''
-    Type function for argparse - a float within MIN and MAX
+    Type function for argparse ratio
+     
+    :returns: float within MIN and MAX
     '''
 
     try:
@@ -21,7 +23,9 @@ def limited_ratio_type(arg):
 
 def limited_variance_type(arg):
     '''
-    type function for argparse - a float within MIN and MAX
+    type function for argparse variance
+    
+    :returns: float within MIN and MAX, or 0
     '''
 
     try:
@@ -44,10 +48,10 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # pipeline
-    parser.add_argument("--reduction", "-rd", default=0, type=limited_variance_type, help="choose pca variance between {MIN} and {MAX} for feature extraction, or skip feature extraction")
-    parser.add_argument("--classification", "-cl", default='bayes', choices=['None','bayes','discriminative','knn'], help="choose classification model")
+    parser.add_argument("--reduction", "-rd", default=0, type=limited_variance_type, help=f"choose pca variance between {MIN} and {MAX} for feature extraction, or skip feature extraction")
+    parser.add_argument("--classification", "-cl", default='bayes', choices=['None','bayes','discriminative','knn', 'svm'], help="choose classification model")
     parser.add_argument("--allknn", "-ak", action="store_true", help="if knn is the classification model it computes for all possible k values and returns the best")
-    parser.add_argument("--features", "-ft", default='41', type=str, help="choose data file based on number of features")
+    parser.add_argument("--features", "-ft", default='41', type=str, help="choose data file based on number of features; if it doesn't exist an error is shown")
     parser.add_argument("--ratio", "-rt", default=0.7, type=limited_ratio_type, help=f"a ratio between {MIN} and {MAX} for deciding how large the training set will be")
     parser.add_argument("--seed", "-sd", default=0, type=int, help="choose the seed for the random dataset split generator")
     

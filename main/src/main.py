@@ -14,6 +14,7 @@ from feature_reduction import principal_component_analysis as pca
 from gaussian_naive_bayes import gaussian_naive_bayes as gnb
 from discriminative import discriminative as disc
 from k_nearest_neighbors import k_nearest_neighbors as knn
+from support_vector_machines import support_vector_machines
 from arg_parser import parse_args
 
 # for 'random' dataset splitting
@@ -181,7 +182,6 @@ def main():
         - classification + evaluation
     '''
 
-
     # feature extraction
     if args.reduction != 0:
         reduced, original = pca(variance = args.reduction)
@@ -203,6 +203,10 @@ def main():
 
     elif args.classification == "discriminative":
         predictions = disc(train_data, train_labels, test_data)
+        eva = evaluation(predictions, true_labels, name)
+
+    elif args.classification == "svm":
+        predictions = support_vector_machines(train_data, train_labels, test_data)
         eva = evaluation(predictions, true_labels, name)
 
     elif args.classification == "knn":
