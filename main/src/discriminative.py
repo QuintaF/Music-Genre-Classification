@@ -1,100 +1,7 @@
 import numpy as np
-from matplotlib import pyplot as plt
-from sklearn import metrics
 
 
-def plot2d(features, means):
-    '''
-    plotting 2d decision boundaries (lines)
-    '''
-    data = np.load(f"../dataset/My_Data/pca_{features}.npy")
-
-    # decision boundaries 
-    w = []
-    x = []
-    for i in range(0, len(means)-1):
-        w.append(means[i] - means[i+1])
-        x.append(1/2* (means[i]+means[i+1])) # reduced formula since prior is always the same
-
-    w.append(means[0] - means[len(means)-1])
-    x.append(1/2* (means[0]+means[len(means)-1]))
-
-    x_m = []
-    z1 = []
-    z2 = []
-    z3 = []
-    z4 = []
-    z5 = []
-    z6 = []
-    z7 = []
-    z8 = []
-    z9 = []
-    z10 = []
-    for c in range(-10,15,1):
-        for r in range(-2,2,1):
-            x_m.append(np.array([c]))
-            z1.append(w[0].T.dot(np.array([c,r])-x[0]))
-            z2.append(w[1].T.dot(np.array([c,r])-x[1]))
-            z3.append(w[2].T.dot(np.array([c,r])-x[2]))
-            z4.append(w[3].T.dot(np.array([c,r])-x[3]))
-            z5.append(w[4].T.dot(np.array([c,r])-x[4]))
-            z6.append(w[5].T.dot(np.array([c,r])-x[5]))
-            z7.append(w[6].T.dot(np.array([c,r])-x[6]))
-            z8.append(w[7].T.dot(np.array([c,r])-x[7]))
-            z9.append(w[8].T.dot(np.array([c,r])-x[8]))
-            z10.append(w[9].T.dot(np.array([c,r])-x[9]))
-
-    x_m = np.array(x_m)
-    z1 = np.array(z1)
-    z2 = np.array(z2)
-    z3 = np.array(z3)
-    z4 = np.array(z4)
-    z5 = np.array(z5)
-    z6 = np.array(z6)
-    z7 = np.array(z7)
-    z8 = np.array(z8)
-    z9 = np.array(z9)
-    z10 = np.array(z10)
-
-    # scatter colors
-    colors = ["blue"]*100 + ["dimgray"]*100 + ["forestgreen"]*100 + ["cyan"]*100 + ["darkred"]*100 + ["mediumpurple"]*99 + ["black"]*100 + ["magenta"]*100 + ["orange"]*100 + ["red"]*100 
-
-    fig = plt.figure("Decision Boundaries - 2D")
-    ax = fig.add_subplot()
-    ax.scatter(data[:,0], data[:,1], c=colors)
-    
-    im1 = ax.plot(x_m[:,0], z1, "blue")[0]
-    im2 = ax.plot(x_m[:,0], z2, "dimgray")[0]
-    im3 = ax.plot(x_m[:,0], z3, "forestgreen")[0]
-    im4 = ax.plot(x_m[:,0], z4, "cyan")[0]
-    im5 = ax.plot(x_m[:,0], z5, "darkred")[0]
-    im6 = ax.plot(x_m[:,0], z6, "mediumpurple")[0]
-    im7 = ax.plot(x_m[:,0], z7, "black")[0]
-    im8 = ax.plot(x_m[:,0], z8, "magenta")[0]
-    im9 = ax.plot(x_m[:,0], z9, "orange")[0]
-    im10 = ax.plot(x_m[:,0], z10, "red")[0]
-    imgs = [im10, im1, im2, im3, im4, im5, im6, im7, im8, im9]
-
-    def toggle_images(event):
-        'toggle the visible state of the images'
-
-        key = event.key
-        if key in ['1','2','3','4','5','6','7','8','9','0']:
-            imgs[int(key)].set_visible(not(imgs[int(key)].get_visible()))
-        else:
-            return
-        
-        plt.draw()
-
-    plt.connect('key_press_event', toggle_images)
-
-    ax.set_xlim((-20,20))
-    ax.set_ylim((-20,20))
-
-    plt.show()
-
-
-def discriminative(train_data, train_labels, test_data, features):
+def discriminative(train_data, train_labels, test_data):
     '''
     computes decision boundaries for each class
 
@@ -162,8 +69,5 @@ def discriminative(train_data, train_labels, test_data, features):
     gx = np.concatenate([np.array(g1x)[:,np.newaxis],np.array(g2x)[:,np.newaxis], np.array(g3x)[:,np.newaxis], np.array(g4x)[:,np.newaxis], np.array(g5x)[:,np.newaxis], np.array(g6x)[:,np.newaxis], np.array(g7x)[:,np.newaxis], np.array(g8x)[:,np.newaxis], np.array(g9x)[:,np.newaxis], np.array(g10x)[:,np.newaxis]],axis=-1)
 
     predictions = np.argmax(gx,axis=-1)
-
-    means = np.array([mean_blues[:2], mean_classical[:2], mean_country[:2], mean_disco[:2], mean_hiphop[:2], mean_jazz[:2], mean_metal[:2], mean_pop[:2], mean_reggae[:2], mean_rock[:2]])
-    plot2d(features, means)
 
     return predictions

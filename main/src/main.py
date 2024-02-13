@@ -18,7 +18,6 @@ from arg_parser import parse_args
 
 # for 'random' dataset splitting
 import random
-SEED = 0
 
 
 def split_data():
@@ -39,7 +38,7 @@ def split_data():
     for i in range(1, 11):
         min_ = (i-1)*100 - (i//6)
         max_ = i*100 - (i//6)
-        train_choice = random.sample(range(min_, max_), ratio)
+        train_choice = random.sample(range(min_, max_), ratio)  # ratio number of numbers n where: _min <= n < _max
         dataset[train_choice] = 1
 
     # get training data
@@ -75,13 +74,14 @@ def evaluation(predictions, true_labels, name = None):
     conf_matrix = metrics.confusion_matrix(true_labels, predictions)
     cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = conf_matrix, display_labels = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"])
 
-    plt.rcParams['figure.figsize'] = [10, 7]
-    cm_display.plot()
+    if name is not None:
+        plt.rcParams['figure.figsize'] = [10, 7]
+        cm_display.plot()
 
-    if args.save and name is not None:
-        plt.savefig(name[:-4] + ".jpg")
+        if args.save:
+            plt.savefig(name[:-4] + ".jpg")
 
-    plt.show()
+        plt.show()
 
     # compute evaluation metrics
     precisions, recalls, f_scores, _ = metrics.precision_recall_fscore_support(true_labels, predictions)
@@ -181,21 +181,19 @@ def main():
         - classification + evaluation
     '''
 
+
     # feature extraction
-    if args.reduction == "pca":
-        reduced, original = pca()
+    if args.reduction != 0:
+        reduced, original = pca(variance = args.reduction)
         print(f"Dimensionality reduction through PCA: {original} -> {reduced}")
         print(f"File created: 'pca_{reduced}.npy' ")
 
+        
     # split dataset
     train_data, train_labels, test_data, true_labels, dataset = split_data()
-        
 
     # output filse name
-    if args.classification == 'knn':
-        name = f"../output/out_rng{SEED}_KNN_{args.allknn}_pca{args.features}_ratio{args.ratio}.txt"
-    else:
-        name = f"../output/out_rng{SEED}_{args.classification}_pca{args.features}_ratio{args.ratio}.txt"
+    name = f"../output/out_rng{SEED}_{args.classification}_pca{args.features}_ratio{args.ratio}.txt"
         
 
     # classification and model evaluation
@@ -204,7 +202,7 @@ def main():
         eva = evaluation(predictions, true_labels, name)
 
     elif args.classification == "discriminative":
-        predictions = disc(train_data, train_labels, test_data, args.features)
+        predictions = disc(train_data, train_labels, test_data)
         eva = evaluation(predictions, true_labels, name)
 
     elif args.classification == "knn":
@@ -213,12 +211,15 @@ def main():
             while True:
                 try:
                     k = int(input(f"Value for the K in nearest neighbour approach({1} < k < {int(args.ratio*100)}) "))
+                    if k not in range(1 , int(args.ratio*100) + 1):
+                        raise ValueError 
                     break  # exit if input is converted to an integer
                 except ValueError:
                     print("Invalid input. Please enter an integer.")
 
             k = max(min(k, args.ratio*100), 1)  #ensure  0 < k < test_data
             predictions = knn(train_data, train_labels, test_data, k)
+            name = name[:21+len(str(SEED))] + str(k) + name[21+len(str(SEED)):]
             eva = evaluation(predictions, true_labels, name)
             
         else:
@@ -226,13 +227,13 @@ def main():
             accuracies = []
             for k in range(1,71):
                 predictions = knn(train_data, train_labels, test_data, k)
-                accuracies.append(evaluation(predictions, true_labels))
+                accuracies.append(evaluation(predictions, true_labels)[3])
             
-            best = np.argmax(k)
-            print(f"Best K ={best + 1} with {accuracies[best]}% accuracy")
+            best = np.argmax(accuracies)
+            print(f"Best K={best + 1} with {accuracies[best]*100:.2f}% accuracy")
             eva = None
 
-    if args.save:
+    if args.save and eva is not None:
         save_output(dataset, name, eva)
     
     return 0
@@ -240,4 +241,5 @@ def main():
 
 if __name__ == '__main__':
     args = parse_args()
+    SEED = args.seed
     main()

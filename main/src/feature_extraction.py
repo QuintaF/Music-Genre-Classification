@@ -14,7 +14,6 @@ os.chdir(file_path)
 import numpy as np
 import matplotlib.pyplot as plt
 import librosa
-import pandas as pd
 import time
 
 #global
@@ -137,6 +136,7 @@ def spectral_centroid_and_bandwidth(song, data, sr, plot = False, full = False):
         # centroid/bandwidth plot 
         t = np.linspace(0, len(centroid[0]) - 1, num = len(centroid[0])) * HOP_LENGTH/sr
         plt.plot(t, centroid[0].T, color = "white", label="spectral centroid")
+        plt.plot(t, bandwidth[0].T, color = "black", label="spectral bw")
         plt.fill_between(t, np.maximum(0, centroid[0] - bandwidth[0]), np.minimum(centroid[0] + bandwidth[0], sr/2), alpha=0.5, label='centroid +- bandwidth', color="white")
         plt.legend(loc="upper right")
         plt.show()
@@ -231,16 +231,19 @@ def decompose_harmonic_percussive(song, data, sr, plot = False, full = False):
         librosa.display.waveshow(harmonic, label="harmonic", alpha=.5, color="#1f77b4")
         librosa.display.waveshow(percussive, label="percussive", alpha=.5, color="#d62728")
         plt.legend(loc = "upper left")
+        plt.show()
 
         # harmonic/percussive spectrogram
-        '''
+        plt.figure(song.rsplit('/',1)[1],figsize=(17,5))
         f = librosa.stft(data, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
         harmonic, percussive  = librosa.decompose.hpss(f) 
-        plt.subplot(3,1,2)
+        plt.subplot(3,1,1)
+        plt.title("Harmonic")
         librosa.display.specshow(librosa.amplitude_to_db(np.abs(harmonic), ref=np.max), y_axis="log", x_axis="time")
         plt.subplot(3,1,3)
+        plt.title("Percussive")
         librosa.display.specshow(librosa.amplitude_to_db(np.abs(percussive), ref=np.max), y_axis="log", x_axis="time")
-        '''
+        
         plt.show()
     
     elif full:
@@ -381,31 +384,9 @@ def extraction_pipeline():
 
     all_features = []
     start = time.time()
-    for song in filenames:
+    for song in filenames[0:]:
         song_features = np.empty(61) # features
         data, sr = librosa.load(song)
-
-        '''
-        graph of ft and spectrogram with rolloff
-        plt.figure()
-        
-        fft = np.fft.fft(data)
-        fft = fft[0:len(fft)//2]
-        fft[1::] = 2*fft[1::]
-        f = np.linspace(0,len(fft)//2 -1, num = len(fft))*(sr/len(data)) 
-        plt.plot(f, np.abs(fft))
-        
-        
-        plt.figure()
-        da = librosa.stft(data)
-        librosa.display.specshow(librosa.power_to_db(np.abs(da), ref=np.max), y_axis="log", x_axis="time")
-        # compute
-        rolloff = librosa.feature.spectral_rolloff(y = data)
-        plt.colorbar()
-        plt.set_cmap('magma')
-        plt.plot(librosa.times_like(rolloff),rolloff[0], color='green')
-        plt.show()
-        '''
 
         #mel_spectrogram(song, data, sr)
         song_features[0], song_features[1] = chroma(song, data, sr)
@@ -423,8 +404,8 @@ def extraction_pipeline():
 
     end = time.time()
     print(end - start)
-    # EXECUTION TIME: 2416.0612704753876 sec
-    # Mel spectrogram generation: 737.3528680801392
+    # EXECUTION TIME: 2416 sec
+    # Mel spectrogram generation: 737 sec
     
     np.save("../dataset/My_Data/features.npy", np.array(all_features))
     

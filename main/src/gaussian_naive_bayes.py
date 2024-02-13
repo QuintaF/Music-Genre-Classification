@@ -1,6 +1,4 @@
 import numpy as np
-from matplotlib import pyplot as plt
-from sklearn import metrics
 from scipy.stats import multivariate_normal
 
 
@@ -45,6 +43,7 @@ def gaussian_naive_bayes(train_data, train_labels, test_data):
     mean_rock = np.mean(rock_train, axis=0)
     cov_rock = np.cov(rock_train, rowvar=False) 
 
+
     # likelihoods(prior 1/10 for each class)
     lik1 = multivariate_normal.pdf(test_data, mean_blues, cov_blues) * 1/10
     lik2 = multivariate_normal.pdf(test_data, mean_classical, cov_classical) * 1/10
@@ -57,6 +56,8 @@ def gaussian_naive_bayes(train_data, train_labels, test_data):
     lik9 = multivariate_normal.pdf(test_data, mean_reggae, cov_reggae) * 1/10
     lik10 = multivariate_normal.pdf(test_data, mean_rock, cov_rock) * 1/10
     
+
+
     # may encounter dvision by 0 warning, since it is not a problem the warning is silenced
     np.seterr(divide = 'ignore') 
     loglik = np.log(np.vstack((lik1, lik2, lik3, lik4, lik5, lik6, lik7, lik8, lik9, lik10)))

@@ -1,10 +1,6 @@
 import numpy as np
-from matplotlib import pyplot as plt
-from scipy.spatial import distance
-from operator import itemgetter
-from sklearn import metrics
 
-from pandas import read_csv
+
 def k_nearest_neighbors(train_data, train_labels, test_data, k = 1):
     '''
     computes knn for each test point 
@@ -16,8 +12,8 @@ def k_nearest_neighbors(train_data, train_labels, test_data, k = 1):
     predictions = []
     for x in test_data:
         # distance
-        cosine = np.dot(train_data, x)/(np.linalg.norm(train_data, axis=1)*np.linalg.norm(x))
-        order = np.argsort(cosine)[::-1]
+        distance = np.dot(train_data, x)/(np.linalg.norm(train_data, axis=1)*np.linalg.norm(x))
+        order = np.argsort(distance)[::-1]
         ordered_labels = np.array(train_labels)[order]
 
         # get k nearest
